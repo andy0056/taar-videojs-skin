@@ -1,0 +1,359 @@
+/* Landing page chrome. The skin's own styles live in src/video/skin.css. */
+:root {
+  --page: #0b0b0c;
+  --page-2: #151517;
+  --ink: #f1efea;
+  --ink-2: #a9a69f;
+  --rule: #2c2c30;
+  --copper: oklch(72% 0.185 48);
+  color-scheme: dark;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+}
+
+body {
+  background: var(--page);
+  color: var(--ink);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+
+a {
+  color: inherit;
+  text-decoration-color: #5a5a60;
+  text-underline-offset: 0.18em;
+}
+
+a:hover {
+  text-decoration-color: var(--ink);
+}
+
+a:focus-visible,
+button:focus-visible {
+  outline: 2px solid var(--ink);
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+
+code {
+  font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  font-size: 0.9em;
+  background: var(--page-2);
+  padding: 0.08em 0.4em;
+  border-radius: 4px;
+  white-space: nowrap;
+}
+
+.page {
+  max-width: 1120px;
+  margin: 0 auto;
+  padding: 28px 20px 96px;
+  display: grid;
+  gap: 56px;
+}
+
+/* ───────────── hero */
+
+.hero {
+  display: grid;
+  gap: 18px;
+}
+
+/* The line runs the full width of the window, past the page's margins. */
+.wordmark {
+  margin: 0 calc(50% - 50vw);
+  line-height: 0;
+}
+
+.wordmark svg {
+  display: block;
+  width: 100vw;
+  overflow: visible;
+}
+
+.wordmark path {
+  fill: none;
+  stroke: var(--ink);
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .wordmark path {
+    stroke-dasharray: 1;
+    stroke-dashoffset: 1;
+    animation: write 1.7s cubic-bezier(0.3, 0, 0.15, 1) 0.15s forwards;
+  }
+}
+
+@keyframes write {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+.lede {
+  margin: 0;
+  max-width: 34em;
+  font-size: clamp(1.15rem, 2.1vw, 1.5rem);
+  line-height: 1.38;
+  text-wrap: pretty;
+  color: var(--ink-2);
+}
+
+.lede strong {
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.gloss {
+  margin: 0;
+  max-width: 46em;
+  font-size: 0.95rem;
+  color: var(--ink-2);
+}
+
+.gloss span[lang="hi"] {
+  color: var(--ink);
+  font-size: 1.08em;
+}
+
+/* ───────────── stage */
+
+.stage {
+  display: grid;
+  gap: 16px;
+}
+
+.stage-frame {
+  width: 100%;
+  max-width: 1040px;
+  margin: 0 auto;
+  --media-border-radius: 10px;
+  transition: max-width 0.3s ease;
+}
+
+.stage-frame video-player,
+.stage-frame media-i18n {
+  display: contents;
+}
+
+.stage-frame .media-skin {
+  aspect-ratio: 16 / 9;
+  box-shadow: 0 0 0 1px var(--rule);
+}
+
+.stage-tools {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px 26px;
+}
+
+.tool {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+}
+
+.tool-name {
+  margin-inline-end: 4px;
+  font-size: 0.78rem;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--ink-2);
+}
+
+.chip {
+  font: inherit;
+  font-size: 0.86rem;
+  padding: 6px 13px;
+  color: var(--ink);
+  background: none;
+  border: 1.5px solid var(--rule);
+  border-radius: 999px;
+  cursor: pointer;
+}
+
+.chip:hover {
+  border-color: #55555b;
+}
+
+.chip[aria-pressed="true"] {
+  color: var(--page);
+  background: var(--ink);
+  border-color: var(--ink);
+}
+
+.swatch {
+  width: 26px;
+  height: 26px;
+  padding: 0;
+  background: var(--swatch);
+  border: 0;
+  border-radius: 50%;
+  cursor: pointer;
+  box-shadow:
+    0 0 0 2px var(--page),
+    0 0 0 3.5px var(--rule);
+}
+
+.swatch[aria-pressed="true"] {
+  box-shadow:
+    0 0 0 2px var(--page),
+    0 0 0 4px var(--ink);
+}
+
+.tool-link {
+  margin-inline-start: auto;
+  font-size: 0.9rem;
+  color: var(--ink-2);
+}
+
+.credit {
+  margin: 0;
+  max-width: 76ch;
+  font-size: 0.85rem;
+  color: var(--ink-2);
+}
+
+/* ───────────── things to try */
+
+.tries {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(232px, 1fr));
+  gap: 28px 24px;
+}
+
+.try {
+  display: grid;
+  align-content: start;
+  gap: 8px;
+}
+
+/* Each card's drawing is a short length of the line doing the thing the card describes. */
+.try-art {
+  display: block;
+  height: 64px;
+  margin-bottom: 4px;
+}
+
+.try-art svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+.try-art path {
+  fill: none;
+  stroke: var(--ink);
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.try-art .signal {
+  stroke: var(--copper);
+  stroke-width: 4;
+}
+
+.try-art circle {
+  fill: var(--ink);
+}
+
+.try h2 {
+  margin: 0;
+  font-size: 1.08rem;
+  font-weight: 620;
+  letter-spacing: -0.005em;
+}
+
+.try p {
+  margin: 0;
+  font-size: 0.95rem;
+  color: var(--ink-2);
+}
+
+/* ───────────── essay and notes */
+
+.essay {
+  display: grid;
+  gap: 16px;
+  max-width: 66ch;
+}
+
+.essay h2,
+.notes h2 {
+  margin: 0 0 2px;
+  font-size: clamp(1.45rem, 2.6vw, 1.9rem);
+  font-weight: 620;
+  line-height: 1.15;
+  letter-spacing: -0.012em;
+}
+
+.essay p {
+  margin: 0;
+  font-size: 1.04rem;
+  color: #d6d3cc;
+}
+
+.notes ul {
+  margin: 18px 0 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(290px, 1fr));
+  gap: 0 28px;
+}
+
+.notes li {
+  padding: 13px 0 14px;
+  border-top: 1.5px solid var(--rule);
+  font-size: 0.95rem;
+  color: var(--ink-2);
+}
+
+.notes li b {
+  font-weight: 620;
+  color: var(--ink);
+}
+
+.foot {
+  padding-top: 20px;
+  border-top: 1.5px solid var(--rule);
+  max-width: 80ch;
+  font-size: 0.9rem;
+  color: var(--ink-2);
+}
+
+.foot p {
+  margin: 0;
+}
+
+@media (max-width: 640px) {
+  .page {
+    gap: 44px;
+    padding-top: 16px;
+  }
+
+  .tool-link {
+    margin-inline-start: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .stage-frame {
+    transition: none;
+  }
+}

@@ -1,0 +1,754 @@
+/*
+ * Taar — the whole player is one unbroken line.
+ *
+ * The layout below is ordinary: a row of Video.js buttons and sliders along the foot of the frame. None of them
+ * paints anything. <taar-line> measures where they sit and runs a single stroke through them, so these rules are
+ * mostly about where the hit targets are, how big they are, and what focus looks like.
+ *
+ * Public knobs, shared with the packaged skins: --media-accent-color, --media-accent-text-color,
+ * --media-border-radius, --media-font-family, --media-scale-unit. Taar's own: --taar-ink, --taar-casing.
+ */
+
+@scope (.media-skin.taar) {
+  :scope {
+    /* The line and the dark edge that keeps it readable over any frame. */
+    --taar-ink: var(--media-foreground, #fff);
+    --taar-casing: rgb(0 0 0 / 0.5);
+    /* Played time. Copper, the colour of the wire the skin is named for. */
+    --media-default-accent-color: oklch(72% 0.185 48);
+    --taar-signal: var(--media-accent);
+
+    --taar-slot: calc(var(--media-spacing) * 11);
+    --taar-gutter: calc(var(--media-spacing) * 3.5);
+    --taar-foot: calc(var(--media-spacing) * 3);
+    --taar-surface: rgb(14 14 15 / 0.94);
+    --taar-ring: 0 0 0 2px var(--taar-ink), 0 0 0 4.5px rgb(0 0 0 / 0.62);
+    /* How long the line takes to come down from the poster; things that ride on it wait this long. */
+    --taar-settle: 300ms;
+
+    --media-popover: var(--taar-surface);
+    --media-popover-foreground: #fff;
+    --media-caption-controls-y: calc(var(--media-spacing) * -17);
+
+    /* A skin brings its own type so it reads the same on every site; override with --media-font-family. */
+    font-family: var(
+      --media-font-family,
+      ui-sans-serif,
+      system-ui,
+      -apple-system,
+      "Segoe UI",
+      Roboto,
+      "Helvetica Neue",
+      sans-serif
+    );
+    font-size: calc(var(--media-spacing) * 3.25);
+    line-height: 1.2;
+    color: var(--taar-ink);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  :scope:focus-visible {
+    outline: 2px solid var(--taar-ink);
+    outline-offset: -2px;
+    box-shadow: inset 0 0 0 4.5px rgb(0 0 0 / 0.62);
+  }
+
+  /* ─────────────────────────────────────────────── the line */
+
+  taar-line {
+    position: absolute;
+    inset: 0;
+    z-index: 25;
+    display: block;
+    pointer-events: none;
+  }
+
+  .taar-svg {
+    display: block;
+    width: 100%;
+    height: 100%;
+    overflow: visible;
+  }
+
+  .taar-casing,
+  .taar-core,
+  .taar-played,
+  .taar-buffer,
+  .taar-level-fill,
+  .taar-hot {
+    fill: none;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
+  .taar-casing {
+    stroke: var(--taar-casing);
+    transition: opacity var(--media-duration-slow) ease-out;
+  }
+
+  .taar-core,
+  .taar-hot {
+    stroke: var(--taar-ink);
+  }
+
+  .taar-played {
+    stroke: var(--taar-signal);
+  }
+
+  .taar-buffer {
+    stroke: var(--taar-ink);
+    stroke-opacity: 0.3;
+    stroke-width: 5.5px;
+  }
+
+  .taar-level-fill {
+    stroke: var(--taar-ink);
+    stroke-width: 4px;
+  }
+
+  .taar-fill {
+    fill: var(--taar-ink);
+    stroke: var(--taar-ink);
+    stroke-width: 2px;
+    stroke-linejoin: round;
+  }
+
+  .taar-bead,
+  .taar-level-bead {
+    fill: var(--taar-ink);
+  }
+
+  .taar-bead-casing {
+    fill: var(--taar-casing);
+  }
+
+  taar-line[data-mode="idle"] .taar-casing {
+    opacity: 0.55;
+  }
+
+  /* ─────────────────────────────────────────────── scrim */
+
+  /* Two shades, one for each place the line rests: the foot of the frame, and the horizon before playback. */
+  .taar-scrim {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+  }
+
+  .taar-scrim::before,
+  .taar-scrim::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    transition: opacity var(--taar-settle) ease-out;
+  }
+
+  .taar-scrim::before {
+    background-image: linear-gradient(to bottom, transparent 28%, rgb(0 0 0 / 0.24) 57%, transparent 86%);
+    opacity: 0;
+  }
+
+  .taar-scrim::after {
+    background-image: linear-gradient(
+      to top,
+      rgb(0 0 0 / 0.56),
+      rgb(0 0 0 / 0.27) 17%,
+      rgb(0 0 0 / 0.08) 32%,
+      transparent 44%
+    );
+  }
+
+  :scope:has(.taar-play:not([data-started])) .taar-scrim::before {
+    opacity: 1;
+  }
+
+  :scope:has(.taar-play:not([data-started])) .taar-scrim::after,
+  .taar-scrim:not([data-visible])::before,
+  .taar-scrim:not([data-visible])::after {
+    opacity: 0;
+  }
+
+  /* ─────────────────────────────────────────────── bar */
+
+  .taar-content {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    padding: 0 var(--taar-gutter) var(--taar-foot);
+  }
+
+  .taar-bar {
+    display: flex;
+    align-items: stretch;
+    height: var(--taar-slot);
+    pointer-events: auto;
+    transition: opacity var(--media-duration-controls) ease-out;
+  }
+
+  .taar-content:not([data-visible]) :is(.taar-bar, .taar-top) {
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .taar-tools {
+    display: flex;
+    align-items: stretch;
+  }
+
+  .taar-button {
+    width: var(--taar-slot);
+    height: var(--taar-slot);
+    background: none;
+    border-radius: calc(var(--media-spacing) * 2.5);
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  /* Hover and press are answered by the line itself: the glyph thickens, lifts and dips. */
+  @media (hover: hover) {
+    .taar-button:hover {
+      background: none;
+    }
+  }
+
+  .taar-button[aria-expanded="true"],
+  .taar-button:focus-visible {
+    background: none;
+  }
+
+  .taar-button:focus-visible,
+  .taar-device:focus-visible {
+    outline: none;
+    box-shadow: var(--taar-ring);
+  }
+
+  .taar-button:focus-visible {
+    /* Keep the ring snug around the glyph instead of the whole hit target. */
+    clip-path: none;
+    box-shadow:
+      inset 0 0 0 2px var(--taar-ink),
+      0 0 0 2.5px rgb(0 0 0 / 0.62);
+  }
+
+  .taar-sr {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+
+  /* Play: a slot in the bar, and before playback the same button lifted to the middle of the frame. */
+  .taar-play-slot {
+    flex: none;
+    width: var(--taar-slot);
+    height: var(--taar-slot);
+  }
+
+  .taar-play {
+    width: 100%;
+    height: 100%;
+  }
+
+  .taar-play:not([data-started]) {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: clamp(calc(var(--media-spacing) * 22), 20cqi, calc(var(--media-spacing) * 42));
+    height: clamp(calc(var(--media-spacing) * 22), 20cqi, calc(var(--media-spacing) * 42));
+    /* The flag stands above the line, so the button sits a little high to centre the flag itself. */
+    translate: -50% -57%;
+    border-radius: 50%;
+  }
+
+  :scope:has(.taar-play:not([data-started])) .taar-bar > :not(.taar-play-slot),
+  :scope:has(.taar-play:not([data-started])) .taar-top {
+    visibility: hidden;
+  }
+
+  /* Times stand on the line like dimensions on a drawing. */
+  .taar-time {
+    flex: none;
+    align-self: flex-end;
+    margin-bottom: calc(var(--taar-slot) * 0.33);
+    padding-inline: calc(var(--media-spacing) * 0.5);
+    font-size: calc(var(--media-spacing) * 3.1);
+    font-weight: 620;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: 0.015em;
+    white-space: nowrap;
+    color: var(--taar-ink);
+    paint-order: stroke fill;
+    -webkit-text-stroke: 3px rgb(0 0 0 / 0.36);
+    text-shadow: 0 1px 2px rgb(0 0 0 / 0.45);
+    pointer-events: none;
+    transition: opacity var(--media-duration-slower) ease-out var(--taar-settle);
+  }
+
+  :scope:has(.taar-play:not([data-started])) .taar-time {
+    opacity: 0;
+    transition: none;
+  }
+
+  .taar-time[data-unavailable] {
+    visibility: hidden;
+  }
+
+  /* ─────────────────────────────────────────────── the string (time slider) */
+
+  .taar-seek {
+    position: relative;
+    flex: 1;
+    min-width: calc(var(--media-spacing) * 14);
+    height: 100%;
+    margin-inline: calc(var(--media-spacing) * 3.5);
+    cursor: pointer;
+    touch-action: none;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .taar-seek[data-disabled] {
+    cursor: not-allowed;
+  }
+
+  .taar-seek-thumb,
+  .taar-level-thumb {
+    position: absolute;
+    /* The line's baseline inside a slot. */
+    top: calc(100% * 34 / 44);
+    left: var(--media-slider-fill, 0%);
+    width: calc(var(--media-spacing) * 5.5);
+    height: calc(var(--media-spacing) * 5.5);
+    translate: -50% -50%;
+    border-radius: 50%;
+    outline: none;
+  }
+
+  .taar-seek[data-dragging] .taar-seek-thumb,
+  .taar-level[data-dragging] .taar-level-thumb {
+    left: var(--media-slider-pointer, var(--media-slider-fill, 0%));
+  }
+
+  .taar-seek-thumb:focus-visible,
+  .taar-level-thumb:focus-visible {
+    box-shadow: var(--taar-ring);
+  }
+
+  .taar-seek-preview {
+    position: absolute;
+    bottom: calc(100% - var(--media-spacing) * 0.5);
+    display: grid;
+    justify-items: center;
+    gap: calc(var(--media-spacing) * 1.5);
+    max-width: calc(var(--media-spacing) * 44);
+    pointer-events: none;
+    opacity: 0;
+    scale: var(--media-hidden-preview-scale);
+    transform-origin: bottom;
+    transition:
+      opacity var(--media-duration-fast) ease-out,
+      scale var(--media-duration-fast) ease-out;
+  }
+
+  .taar-seek:is([data-pointing], [data-dragging]) .taar-seek-preview {
+    opacity: 1;
+    scale: 1;
+    transition-duration: var(--media-duration);
+  }
+
+  .taar-seek[data-disabled] .taar-seek-preview {
+    display: none;
+  }
+
+  /* A frame drawn with the same line. */
+  .taar-seek-thumbnail {
+    display: block;
+    max-width: calc(var(--media-spacing) * 44);
+    overflow: hidden;
+    background: #000;
+    border: 2px solid var(--taar-ink);
+    border-radius: calc(var(--media-spacing) * 1.5);
+    box-shadow: 0 0 0 1.75px var(--taar-casing);
+  }
+
+  .taar-seek-thumbnail[data-hidden] {
+    display: none;
+  }
+
+  .taar-seek-meta {
+    display: flex;
+    align-items: baseline;
+    gap: calc(var(--media-spacing) * 2);
+    max-width: 100%;
+    padding: calc(var(--media-spacing) * 0.75) calc(var(--media-spacing) * 2);
+    font-size: calc(var(--media-spacing) * 3);
+    font-weight: 600;
+    color: #fff;
+    background: var(--taar-surface);
+    border-radius: calc(var(--media-spacing) * 1.25);
+  }
+
+  .taar-seek-chapter {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-weight: 500;
+    opacity: 0.78;
+  }
+
+  .taar-seek-chapter:empty {
+    display: none;
+  }
+
+  .taar-seek-value {
+    flex: none;
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* Pulling the string away from the line slows the scrub; the label says by how much. */
+  .taar-seek[data-taar-rate] .taar-seek-meta::after {
+    padding-inline: calc(var(--media-spacing) * 1.25);
+    font-variant-numeric: tabular-nums;
+    color: var(--taar-surface);
+    background: var(--taar-ink);
+    border-radius: calc(var(--media-spacing) * 0.75);
+  }
+
+  .taar-seek[data-taar-rate="2"] .taar-seek-meta::after {
+    content: "×½";
+  }
+
+  .taar-seek[data-taar-rate="4"] .taar-seek-meta::after {
+    content: "×¼";
+  }
+
+  .taar-seek[data-taar-rate="8"] .taar-seek-meta::after {
+    content: "×⅛";
+  }
+
+  /* ─────────────────────────────────────────────── volume */
+
+  /* The speaker's front edge grows into a mast with a bead on it. This is only the hit area for that mast. */
+  .taar-volume-popup {
+    --media-popover-side-offset: 0px;
+    --media-popup-side-offset: 0px;
+    width: var(--taar-slot);
+    height: calc(var(--media-spacing) * 17);
+    padding: 0;
+    background: none;
+    /* The mast stands on the horn's front edge, a little left of the slot's centre. */
+    translate: calc(var(--taar-slot) * -5 / 44) 0;
+    transition: opacity var(--media-duration-fast) ease-out;
+  }
+
+  .taar-volume-popup:is([data-starting-style], [data-ending-style]) {
+    scale: 1;
+    filter: none;
+    transform: none;
+  }
+
+  @media (pointer: coarse) {
+    /* Phones set loudness with their own keys; a tap on the speaker mutes. */
+    .taar-volume-popup {
+      display: none !important;
+    }
+  }
+
+  .taar-level {
+    position: relative;
+    display: block;
+    width: 100%;
+    height: 100%;
+    cursor: pointer;
+    touch-action: none;
+  }
+
+  .taar-level-thumb {
+    top: auto;
+    bottom: var(--media-slider-fill, 0%);
+    left: 50%;
+    translate: -50% 50%;
+  }
+
+  .taar-level[data-dragging] .taar-level-thumb {
+    bottom: var(--media-slider-pointer, var(--media-slider-fill, 0%));
+    left: 50%;
+  }
+
+  /* ─────────────────────────────────────────────── corner */
+
+  .taar-top {
+    position: absolute;
+    top: calc(var(--media-spacing) * 2);
+    inset-inline-end: calc(var(--media-spacing) * 2);
+    display: flex;
+    pointer-events: auto;
+    transition: opacity var(--media-duration-controls) ease-out;
+  }
+
+  .taar-device {
+    width: var(--taar-slot);
+    height: var(--taar-slot);
+    color: var(--taar-ink);
+    background: none;
+    border-radius: calc(var(--media-spacing) * 2.5);
+    filter: drop-shadow(0 0 1.5px rgb(0 0 0 / 0.7));
+  }
+
+  /* Shown only where there is something to send the picture to. */
+  .taar-device:not([data-availability="available"]) {
+    display: none;
+  }
+
+  .taar-device .media-button-icon {
+    width: calc(var(--media-spacing) * 7);
+    height: calc(var(--media-spacing) * 7);
+  }
+
+  @media (hover: hover) {
+    .taar-device:hover {
+      background: none;
+    }
+  }
+
+  /* ─────────────────────────────────────────────── tooltips */
+
+  .taar-tip {
+    --media-tooltip-side-offset: calc(var(--media-spacing) * 1.5);
+    padding: calc(var(--media-spacing) * 1) calc(var(--media-spacing) * 2);
+    font-size: calc(var(--media-spacing) * 3);
+    font-weight: 560;
+    letter-spacing: 0.01em;
+    color: #fff;
+    background: var(--taar-surface);
+    border-radius: calc(var(--media-spacing) * 1.25);
+  }
+
+  .taar-tip .media-tooltip-shortcut {
+    padding: 0 calc(var(--media-spacing) * 1);
+    font-size: calc(var(--media-spacing) * 2.75);
+    font-weight: 600;
+    color: rgb(255 255 255 / 0.72);
+    border: 1px solid rgb(255 255 255 / 0.34);
+    border-radius: calc(var(--media-spacing) * 0.75);
+  }
+
+  .taar-tip .media-tooltip-shortcut:empty {
+    display: none;
+  }
+
+  /* ─────────────────────────────────────────────── menu */
+
+  .taar-menu {
+    --media-popover-side-offset: calc(var(--media-spacing) * 2);
+    --media-menu-item-radius: calc(var(--media-spacing) * 1.5);
+    min-width: calc(var(--media-spacing) * 46);
+    padding: calc(var(--media-spacing) * 1.25);
+    font-size: calc(var(--media-spacing) * 3.25);
+    font-weight: 520;
+    color: #fff;
+    background: var(--taar-surface);
+    /* The panel's frame is the line, come up off the bar. */
+    border: 2px solid var(--taar-ink);
+    border-radius: calc(var(--media-spacing) * 3);
+    box-shadow: 0 0 0 1.75px var(--taar-casing);
+  }
+
+  .taar-menu :is(.media-menu-item, .media-menu-radio-item, .media-menu-back-item) {
+    min-height: calc(var(--media-spacing) * 9);
+    padding-inline: calc(var(--media-spacing) * 2.5);
+    border-radius: var(--media-menu-item-radius);
+    outline: none;
+  }
+
+  .taar-menu :is(.media-menu-item, .media-menu-radio-item, .media-menu-back-item)[data-highlighted] {
+    background: rgb(255 255 255 / 0.14);
+  }
+
+  .taar-menu :is(.media-menu-item, .media-menu-radio-item, .media-menu-back-item):focus-visible {
+    background: rgb(255 255 255 / 0.14);
+    box-shadow: inset 0 0 0 2px var(--taar-ink);
+  }
+
+  .taar-menu .media-menu-trigger-icon {
+    width: calc(var(--media-spacing) * 5.5);
+    height: calc(var(--media-spacing) * 5.5);
+  }
+
+  .taar-menu .media-menu-hint-label,
+  .taar-menu .media-menu-tier,
+  .taar-menu .media-menu-badge {
+    color: rgb(255 255 255 / 0.66);
+  }
+
+  .taar-menu .media-menu-separator {
+    height: 2px;
+    margin: calc(var(--media-spacing) * 1) calc(var(--media-spacing) * 1.5);
+    background: rgb(255 255 255 / 0.2);
+  }
+
+  .taar-menu .media-menu-radio-item[aria-checked="true"] {
+    font-weight: 650;
+  }
+
+  /* ─────────────────────────────────────────────── indicators, loading, error */
+
+  .media-indicator {
+    padding: calc(var(--media-spacing) * 1.5) calc(var(--media-spacing) * 3);
+    font-weight: 600;
+    color: #fff;
+    background: var(--taar-surface);
+    border-radius: calc(var(--media-spacing) * 2);
+  }
+
+  .media-indicator :is(.media-status-indicator-icon, .media-volume-indicator-icon, .media-seek-indicator-icon) {
+    width: calc(var(--media-spacing) * 5.5);
+    height: calc(var(--media-spacing) * 5.5);
+  }
+
+  .taar-buffering .media-buffering-indicator-spinner-icon {
+    width: calc(var(--media-spacing) * 12);
+    height: calc(var(--media-spacing) * 12);
+    color: var(--taar-ink);
+    filter: drop-shadow(0 0 1.5px rgb(0 0 0 / 0.75));
+  }
+
+  .media-dialog-popup {
+    color: #fff;
+    background: var(--taar-surface);
+    border: 2px solid var(--taar-ink);
+    border-radius: calc(var(--media-spacing) * 3);
+    box-shadow: 0 0 0 1.75px var(--taar-casing);
+  }
+
+  .media-dialog-popup {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .media-dialog-title {
+    font-weight: 650;
+  }
+
+  /* Error text can be one long unbroken token; let it wrap instead of scrolling the panel sideways. */
+  .media-dialog-title,
+  .media-dialog-description {
+    min-width: 0;
+    overflow-wrap: anywhere;
+  }
+
+  .media-dialog-close {
+    color: #fff;
+    border-radius: calc(var(--media-spacing) * 1.5);
+    border-width: 2px !important;
+  }
+
+  .media-dialog-close:focus-visible {
+    outline: none;
+    box-shadow: var(--taar-ring);
+  }
+
+  /* ─────────────────────────────────────────────── smaller players */
+
+  /* Each step drops the least-needed thing and gives the string its room back. */
+  @container media-root (width < 40rem) {
+    .taar-bar .media-pip-button,
+    .taar-bar .media-pip-button + media-tooltip {
+      display: none;
+    }
+  }
+
+  @container media-root (width < 31rem) {
+    .taar-content {
+      --taar-slot: calc(var(--media-spacing) * 10);
+      --taar-gutter: calc(var(--media-spacing) * 2);
+    }
+
+    .taar-time-duration {
+      display: none;
+    }
+
+    .taar-seek {
+      margin-inline: calc(var(--media-spacing) * 2.5);
+    }
+
+  }
+
+  @container media-root (width < 23rem) {
+    .taar-content {
+      --taar-gutter: calc(var(--media-spacing) * 1);
+    }
+
+    .taar-time-current {
+      display: none;
+    }
+  }
+
+  /* ─────────────────────────────────────────────── preferences */
+
+  @media (prefers-reduced-motion: reduce) {
+    :scope {
+      --taar-settle: 0ms;
+    }
+  }
+
+  @media (prefers-contrast: more), (prefers-reduced-transparency: reduce) {
+    :scope {
+      --taar-casing: #000;
+      --taar-surface: #000;
+    }
+
+    /* A solid band behind the line instead of a fade. */
+    .taar-scrim::after {
+      background-image: linear-gradient(to top, #000 calc(var(--taar-foot) + var(--taar-slot) + var(--media-spacing) * 2), transparent 0);
+    }
+
+    .taar-scrim::before {
+      background-image: linear-gradient(to bottom, transparent 36%, rgb(0 0 0 / 0.72) 36% 74%, transparent 74%);
+    }
+
+    .taar-time {
+      -webkit-text-stroke: 3px #000;
+    }
+  }
+
+  @media (forced-colors: active) {
+    :scope {
+      --taar-ink: CanvasText;
+      --taar-casing: Canvas;
+      --taar-signal: Highlight;
+      --taar-surface: Canvas;
+    }
+
+    .taar-svg {
+      forced-color-adjust: none;
+    }
+
+    .taar-button {
+      /* The scaffold gives buttons a system face in this mode; the line already draws them. */
+      background: none;
+      border: 0;
+    }
+
+    .taar-button:focus-visible,
+    .taar-seek-thumb:focus-visible,
+    .taar-level-thumb:focus-visible {
+      outline: 2px solid Highlight;
+      outline-offset: 1px;
+      box-shadow: none;
+    }
+
+    .taar-time {
+      color: CanvasText;
+      -webkit-text-stroke: 3px Canvas;
+    }
+
+    .taar-scrim::after {
+      background-image: linear-gradient(to top, Canvas calc(var(--taar-foot) + var(--taar-slot) + var(--media-spacing) * 2), transparent 0);
+    }
+
+    .taar-scrim::before {
+      background-image: none;
+    }
+  }
+}

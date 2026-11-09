@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Taar — a Video.js v10 skin drawn in one line</title>
+    <meta name="description" content="Taar is a Video.js v10 skin where the whole player is one unbroken line. It stands up into controls, pulls tight into a seek string you can pluck, and lies flat as a hairline when you are watching." />
+    <meta property="og:title" content="Taar — the whole player is one line" />
+    <meta property="og:description" content="A Video.js v10 skin drawn in one unbroken stroke. Pull the seek string away from the line to scrub finely; let go and it rings." />
+    <meta property="og:type" content="website" />
+    <meta name="theme-color" content="#0b0b0c" />
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%230b0b0c'/%3E%3Cpath d='M2 23h9V8l12 7.5L11 23h19' fill='none' stroke='%23fff' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E" />
+    <link rel="stylesheet" href="/src/landing/landing.css" />
+    <script type="module" src="/src/landing/main.ts"></script>
+  </head>
+  <body>
+    <main class="page">
+      <header class="hero">
+        <h1 class="wordmark" id="wordmark" aria-label="Taar"></h1>
+        <p class="lede">A Video.js v10 skin where the whole player is <strong>one unbroken line</strong>. It stands up into controls when you reach for them, pulls tight into a string you can pluck to scrub, and lies flat as a hairline while you watch.</p>
+        <p class="gloss"><span lang="hi">तार</span> <i>taar</i> is Hindi for wire, and for the string of a sitar. In Devanagari every word hangs from one continuous line. This player stands on one.</p>
+      </header>
+
+      <section class="stage" aria-label="Taar demo player">
+        <div class="stage-frame" id="stage"></div>
+        <div class="stage-tools">
+          <div class="tool" role="group" aria-label="Footage">
+            <span class="tool-name">Footage</span>
+            <button type="button" class="chip" data-clip="stars" aria-pressed="true">Talking head</button>
+            <button type="button" class="chip" data-clip="aurora" aria-pressed="false">Night sky</button>
+            <button type="button" class="chip" data-clip="card" aria-pressed="false">Test card</button>
+          </div>
+          <div class="tool" role="group" aria-label="Player width">
+            <span class="tool-name">Width</span>
+            <button type="button" class="chip" data-width="1040" aria-pressed="true">Wide</button>
+            <button type="button" class="chip" data-width="640" aria-pressed="false">Tablet</button>
+            <button type="button" class="chip" data-width="360" aria-pressed="false">Phone</button>
+          </div>
+          <div class="tool" role="group" aria-label="Accent colour">
+            <span class="tool-name">Accent</span>
+            <button type="button" class="swatch" data-accent="" aria-pressed="true" aria-label="Copper (default)" style="--swatch: oklch(72% 0.185 48)"></button>
+            <button type="button" class="swatch" data-accent="#ffffff" aria-pressed="false" aria-label="White" style="--swatch: #ffffff"></button>
+            <button type="button" class="swatch" data-accent="oklch(80% 0.14 215)" aria-pressed="false" aria-label="Sky" style="--swatch: oklch(80% 0.14 215)"></button>
+            <button type="button" class="swatch" data-accent="oklch(86% 0.19 128)" aria-pressed="false" aria-label="Lime" style="--swatch: oklch(86% 0.19 128)"></button>
+          </div>
+          <a class="tool-link" href="./workbench.html">Open in the Video.js workbench</a>
+        </div>
+        <p class="credit">Footage from NASA's <a href="https://images.nasa.gov/">image and video library</a>, streamed from <a href="https://www.mux.com">Mux</a> with its generated captions and storyboard thumbnails. “Test card” is a bundled clip of hard cases: paper white, a moving checkerboard, colour bars, static and black.</p>
+      </section>
+
+      <section class="tries" aria-label="Things to try">
+        <article class="try">
+          <span class="try-art" data-art="flag" aria-hidden="true"></span>
+          <h2>Press play</h2>
+          <p>Before playback the line is a horizon with one flag on it. On play it comes down to the foot of the frame and the controls stand up out of it.</p>
+        </article>
+        <article class="try">
+          <span class="try-art" data-art="pluck" aria-hidden="true"></span>
+          <h2>Pull the string</h2>
+          <p>Drag the bead, then pull away from the line. The further you pull, the finer the scrub: ½, ¼, then ⅛ speed. Let go and it rings.</p>
+        </article>
+        <article class="try">
+          <span class="try-art" data-art="mast" aria-hidden="true"></span>
+          <h2>Point at the speaker</h2>
+          <p>Its front edge grows into a mast with a bead on it. That is the volume slider. The wave behind the horn is as tall as the sound is loud.</p>
+        </article>
+        <article class="try">
+          <span class="try-art" data-art="rest" aria-hidden="true"></span>
+          <h2>Leave it alone</h2>
+          <p>The controls lie back down and the line rests on the bottom edge as a progress hairline. Move, tap or press Tab and it is back at once.</p>
+        </article>
+      </section>
+
+      <section class="essay">
+        <h2>Why one line?</h2>
+        <p>Player controls are usually a kit of parts: a bar, a row of icons, a track, a few panels, each drawn on its own and pinned over the picture. Taar asks what is left if there is only one part. A single stroke enters at the left edge and leaves at the right. Where a control is needed it rises into that shape and comes back down without lifting. Where time is needed it runs straight and taut. Nothing else is drawn, so nothing else covers the video.</p>
+        <p>The constraint decides the rest. An icon cannot be a filled silhouette, so each one is drawn the way you would draw it without lifting a pen: play is a flag on the line, pause is two pulses, and the speaker's sound is a wave in the line itself. State cannot lean on colour, so it is carried by shape: captions fill in when they are on, mute strikes through the horn, fullscreen turns its arrow round.</p>
+        <p>And because the seek bar really is a line, it can behave like one. Pull it and it bends toward your hand, slowing the scrub the further you go, which makes a single frame in a long film easy to land on. Release it and it rings for a quarter of a second, then is still.</p>
+        <p>Underneath, everything is ordinary on purpose. Every glyph is a standard Video.js button or slider with its own label, shortcut and focus ring, in the order you would expect. The line is only how they are drawn.</p>
+      </section>
+
+      <section class="notes" aria-label="Craft and accessibility notes">
+        <h2>Craft notes</h2>
+        <ul>
+          <li><b>Readable over any frame.</b> The line is cased like a road on a map: a light core with a dark edge, over a soft shade at the foot of the frame. Try “Test card”.</li>
+          <li><b>State is a shape.</b> On and off never differ by colour alone. Toggles fill in, mute is struck through, and the wave flattens with the volume.</li>
+          <li><b>Real controls underneath.</b> Video.js v10 components keep the roles, translated labels, shortcuts and tab order. The drawing is hidden from assistive technology.</li>
+          <li><b>Focus you can see.</b> A white ring with a dark halo on every stop, slider beads included, and focus brings hidden controls straight back.</li>
+          <li><b>Calm on request.</b> With reduced motion the line changes pose without travelling, the string does not ring, and the loading ripple stops.</li>
+          <li><b>Solid on request.</b> More contrast or less transparency swaps the shade for a solid band. Forced colours uses the system's own.</li>
+          <li><b>Thumb sized.</b> 44 px targets, 40 px on the narrowest players. Nothing depends on hover; phones get mute and their own volume keys.</li>
+          <li><b>Small players.</b> Picture-in-picture goes first, then duration, then the clock, so the string keeps its room down to 320 px.</li>
+          <li><b>Quick where it counts.</b> Controls stand up in about a tenth of a second and lie down faster. Every movement is a spring that can be interrupted. Nothing moves on load.</li>
+          <li><b>Made for Mux.</b> Storyboard thumbnails follow the bead, chapters are frets on the string, and captions and quality come from the stream.</li>
+          <li><b>Yours to tint.</b> <code>--media-accent-color</code> colours played time. <code>--media-font-family</code>, <code>--media-border-radius</code> and <code>--media-scale-unit</code> work as on the packaged skins.</li>
+          <li><b>Small footprint.</b> One custom element, <code>&lt;taar-line&gt;</code>, and plain CSS. No canvas, no web fonts, no images.</li>
+        </ul>
+      </section>
+
+      <footer class="foot">
+        <p>Taar is an entry in the <a href="https://contra.com/community/topic/videojsskinschallenge">Video.js Skins Design Challenge</a>, built on <a href="https://videojs.org">Video.js v10</a> from the Scaffold skin. Designed and built by <a href="https://anirudhthakur.work">Anirudh Thakur</a> in Dubai. <a id="source-link" href="https://github.com/andy0056">Source</a>, Apache-2.0.</p>
+      </footer>
+    </main>
+  </body>
+</html>
