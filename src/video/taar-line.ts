@@ -140,6 +140,8 @@ export class TaarLineElement extends UIElement {
   #mast = new Spring(0, 380, 32);
 
   #mode: Mode = 'poster';
+  /** One slot unit in pixels: 1 at the default size, larger when the host raises `--media-scale-unit`. */
+  #unit = 1;
   #width = 0;
   #height = 0;
   #ready = false;
@@ -358,7 +360,8 @@ export class TaarLineElement extends UIElement {
     const lineY = this.#container.getBoundingClientRect().top + this.#lineY.value;
     const away = Math.abs(event.clientY - lineY);
     // Whole steps, so the label beside the bead can say exactly how fine the scrub is.
-    const rate = away < 36 ? 1 : away < 84 ? 0.5 : away < 140 ? 0.25 : 0.125;
+    const reach = away / this.#unit;
+    const rate = reach < 36 ? 1 : reach < 84 ? 0.5 : reach < 140 ? 0.25 : 0.125;
     this.#setRate(rate);
     scrub.x = Math.min(scrub.max, Math.max(scrub.min, scrub.x + (event.clientX - scrub.last) * rate));
     scrub.last = event.clientX;
@@ -582,6 +585,11 @@ export class TaarLineElement extends UIElement {
     // First layout, a resize, or a reduced-motion preference: place everything without animating.
     const jump = !this.#ready || resized || this.#still;
 
+    // Stroke weights and distances follow the size of a slot, so the line scales with `--media-scale-unit`.
+    const slot = this.#seek.el?.getBoundingClientRect().height ?? 0;
+    if (slot > 1) this.#unit = slot / 44;
+    const unit = this.#unit;
+
     let lineY = this.#lineY.target;
     let reference: DOMRect | null = null;
     const origin = playNode ? playNode.el.getBoundingClientRect() : null;
@@ -642,16 +650,16 @@ export class TaarLineElement extends UIElement {
     }
 
     if (reference) lineY = reference.top - box.top + reference.height * BASELINE;
-    if (mode === 'idle') lineY = box.height - 1.5;
+    if (mode === 'idle') lineY = box.height - 1.5 * unit;
     this.#lineY.target = lineY;
-    this.#stroke.target = mode === 'poster' && playNode ? 2 + 0.36 * (playNode.scale.target - 1) : 2;
+    this.#stroke.target = (mode === 'poster' && playNode ? 2 + 0.36 * (playNode.scale.target / unit - 1) : 2) * unit;
     this.#ink.target = mode === 'idle' ? 0.55 : 1;
     // Coming down from the poster, the bead and frets wait until the line has landed.
     if (modeChanged && previous === 'poster' && !jump) this.#settleAt = now + 300;
     const landed = now >= this.#settleAt;
     if (!landed) this.#dirty = true;
     this.#open.target = mode === 'active' && landed ? 1 : 0;
-    this.#beadRadius.target = mode === 'active' && landed ? (this.#dragging ? 7.5 : this.#pointing ? 6.5 : 5) : 0;
+    this.#beadRadius.target = mode === 'active' && landed ? (this.#dragging ? 7.5 : this.#pointing ? 6.5 : 5) * unit : 0;
 
     // The time slider is the taut part of the line. At rest on the bottom edge it spans the whole frame.
     const seek = this.#seek;
@@ -709,7 +717,7 @@ export class TaarLineElement extends UIElement {
     // with the clock; a seek does not.
     const mediaTime = num(time?.currentTime);
     const drift = Math.abs(mediaTime - this.#lastTime) - (now - this.#lastWall) / 1000 * 2.5;
-    if (!jump && !this.#dragging && !wasDragging && drift > 0.6 && this.#lastFill >= 0 && mode === 'active') this.#flick(fill, 3);
+    if (!jump && !this.#dragging && !wasDragging && drift > 0.6 && this.#lastFill >= 0 && mode === 'active') this.#flick(fill, 3 * unit);
     this.#lastTime = mediaTime;
     this.#lastWall = now;
     this.#lastFill = fill;
@@ -839,10 +847,11 @@ export class TaarLineElement extends UIElement {
 
     if (this.#dragging && this.#mode === 'active' && !this.#still) {
       // Pulling the pointer away from the line bends the string toward it, up to a limit.
+      const unit = this.#unit;
       const away = this.#pointerY - this.#lineY.value;
-      const slack = 9;
+      const slack = 9 * unit;
       const beyond = Math.abs(away) <= slack ? 0 : away - Math.sign(away) * slack;
-      const target = 20 * Math.tanh(beyond / 70);
+      const target = 20 * unit * Math.tanh(beyond / (70 * unit));
       this.#pull += (target - this.#pull) * (1 - Math.exp(-dt / 0.035));
       const apex = Math.min(n - 1, Math.max(1, this.#pointerFraction * n));
       for (let i = 1; i < n; i++) {
@@ -875,7 +884,7 @@ export class TaarLineElement extends UIElement {
     let energy = 0;
     for (let i = 1; i < n; i++) energy = Math.max(energy, Math.abs(u[i]!), Math.abs(v[i]!) * 0.02);
     this.#pull = 0;
-    if (energy < 0.12) {
+    if (energy < 0.12 * this.#unit) {
       u.fill(0);
       v.fill(0);
       this.#ringing = false;
@@ -900,6 +909,7 @@ export class TaarLineElement extends UIElement {
 
   #render(): void {
     const width = this.#width;
+    const unit = this.#unit;
     const y = this.#lineY.value;
     const open = Math.max(0, Math.min(1, this.#open.value));
     const x0 = this.#seek.x0.value;
@@ -949,8 +959,8 @@ export class TaarLineElement extends UIElement {
     const beadAt = this.#progress.value;
     const tick = this.#tick.value;
     const marks: { at: number; drop: number }[] = [];
-    if (open > 0.02) for (const fraction of this.#chapters) marks.push({ at: fraction, drop: 4.5 * open });
-    if (tick > 0.02) marks.push({ at: this.#pointerFraction, drop: -8 * tick });
+    if (open > 0.02) for (const fraction of this.#chapters) marks.push({ at: fraction, drop: 4.5 * unit * open });
+    if (tick > 0.02) marks.push({ at: this.#pointerFraction, drop: -8 * unit * tick });
     marks.sort((a, b) => a.at - b.at);
 
     const lively = this.#ringing || this.#dragging || wave > 0.01;
@@ -962,7 +972,7 @@ export class TaarLineElement extends UIElement {
       const bend = this.#u[low]! + (this.#u[low + 1]! - this.#u[low]!) * (index - low);
       if (wave <= 0.01 || fraction <= beadAt) return bend;
       const reach = (fraction - beadAt) / Math.max(0.001, 1 - beadAt);
-      return bend + 2.6 * wave * Math.sin(reach * Math.PI) * Math.sin(2 * Math.PI * (fraction * 7 - this.#clock * 1.5));
+      return bend + 2.6 * unit * wave * Math.sin(reach * Math.PI) * Math.sin(2 * Math.PI * (fraction * 7 - this.#clock * 1.5));
     };
     for (let i = 0; i <= steps; i++) {
       const fraction = i / steps;
@@ -991,13 +1001,13 @@ export class TaarLineElement extends UIElement {
     const d = toPath(line, radii);
     const stroke = this.#stroke.value;
     this.#casing.setAttribute('d', d);
-    this.#casing.style.strokeWidth = `${stroke + 3.6}px`;
+    this.#casing.style.strokeWidth = `${stroke + 3.6 * unit}px`;
     this.#core.setAttribute('d', d);
     this.#core.style.strokeWidth = `${stroke}px`;
     this.#core.style.strokeOpacity = String(this.#ink.value);
 
     this.#hotPath.setAttribute('d', hot);
-    this.#hotPath.style.strokeWidth = `${stroke + 1.3 * hottest}px`;
+    this.#hotPath.style.strokeWidth = `${stroke + 1.3 * unit * hottest}px`;
     this.#hotPath.style.opacity = String(Math.min(1, hottest * 1.6));
 
     // Played portion and the bead that rides the string.
@@ -1009,7 +1019,7 @@ export class TaarLineElement extends UIElement {
     }
     const started = this.#mode !== 'poster';
     this.#played.setAttribute('d', started && beadAt > 0.0005 ? toPath(playedPoints, 0) : '');
-    this.#played.style.strokeWidth = `${stroke + 2 * open}px`;
+    this.#played.style.strokeWidth = `${stroke + 2 * unit * open}px`;
 
     const bufferPoints: Pt[] = [];
     if (open > 0.02 && this.#buffered > beadAt + 0.002) {
@@ -1030,12 +1040,12 @@ export class TaarLineElement extends UIElement {
       circle.setAttribute('cy', beadY.toFixed(2));
     }
     this.#bead.setAttribute('r', radius.toFixed(2));
-    this.#beadCasing.setAttribute('r', (radius > 0.2 ? radius + 2.2 : 0).toFixed(2));
+    this.#beadCasing.setAttribute('r', (radius > 0.2 ? radius + 2.2 * unit : 0).toFixed(2));
 
     // Volume: the mast that grows out of the speaker's front edge, with its own bead.
     const speaker = this.#nodes.find((node) => node.role === 'volume');
     const mast = this.#mast.value;
-    if (speaker && mast > 3) {
+    if (speaker && mast > 3 * unit) {
       const k = speaker.scale.value;
       const mx = speaker.x.value + (MAST_X - SLOT_CENTRE) * k;
       const foot = y - this.#level.x0.value;
@@ -1046,7 +1056,7 @@ export class TaarLineElement extends UIElement {
       this.#levelPath.setAttribute('d', knob < foot - 0.5 ? `M${mx.toFixed(2)},${foot.toFixed(2)}L${mx.toFixed(2)},${knob.toFixed(2)}` : '');
       this.#levelBead.setAttribute('cx', mx.toFixed(2));
       this.#levelBead.setAttribute('cy', knob.toFixed(2));
-      this.#levelBead.setAttribute('r', (4.5 * shown * shown).toFixed(2));
+      this.#levelBead.setAttribute('r', (4.5 * unit * shown * shown).toFixed(2));
       this.#levelPath.style.opacity = String(shown);
     } else {
       this.#levelPath.setAttribute('d', '');
