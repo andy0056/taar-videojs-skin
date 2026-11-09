@@ -19,6 +19,8 @@
     --taar-signal: var(--media-accent);
 
     --taar-slot: calc(var(--media-spacing) * 11);
+    /* The play flag before playback: a fifth of the player's width, within limits. */
+    --taar-flag: clamp(calc(var(--media-spacing) * 22), 20cqi, calc(var(--media-spacing) * 42));
     --taar-gutter: calc(var(--media-spacing) * 3.5);
     --taar-foot: calc(var(--media-spacing) * 3);
     --taar-surface: rgb(14 14 15 / 0.94);
@@ -254,8 +256,8 @@
     position: absolute;
     top: 50%;
     left: 50%;
-    width: clamp(calc(var(--media-spacing) * 22), 20cqi, calc(var(--media-spacing) * 42));
-    height: clamp(calc(var(--media-spacing) * 22), 20cqi, calc(var(--media-spacing) * 42));
+    width: var(--taar-flag);
+    height: var(--taar-flag);
     /* The flag stands above the line, so the button sits a little high to centre the flag itself. */
     translate: -50% -57%;
     border-radius: 50%;
@@ -264,6 +266,47 @@
   :scope:has(.taar-play:not([data-started])) .taar-bar > :not(.taar-play-slot),
   :scope:has(.taar-play:not([data-started])) .taar-top {
     visibility: hidden;
+  }
+
+  /* Before playback, the title and the running time stand on the horizon at either end. */
+  .taar-horizon {
+    position: absolute;
+    inset-inline: calc(var(--taar-gutter) + var(--media-spacing) * 1.5);
+    /* The horizon sits 34/44 of the way down the flag, which itself sits 57% above the centre. */
+    bottom: calc(50% - var(--taar-flag) * (34 / 44 - 0.57) + var(--media-spacing) * 2);
+    display: none;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: calc(var(--media-spacing) * 4);
+    pointer-events: none;
+  }
+
+  :scope:has(.taar-play:not([data-started])) .taar-horizon {
+    display: flex;
+  }
+
+  .taar-title {
+    flex: 0 1 auto;
+    min-width: 0;
+    max-width: calc(50% - var(--taar-flag) * 0.5);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    padding: 0 calc(var(--media-spacing) * 0.75);
+    font-size: calc(var(--media-spacing) * 3.4);
+    font-weight: 620;
+    letter-spacing: 0.005em;
+    color: var(--taar-ink);
+    background: none;
+    paint-order: stroke fill;
+    -webkit-text-stroke: 3px rgb(0 0 0 / 0.36);
+    text-shadow: 0 1px 2px rgb(0 0 0 / 0.45);
+  }
+
+  .taar-horizon .taar-time {
+    align-self: auto;
+    margin: 0 0 0 auto;
+    opacity: 1;
   }
 
   /* Times stand on the line like dimensions on a drawing. */
@@ -285,7 +328,7 @@
     transition: opacity var(--media-duration-slower) ease-out var(--taar-settle);
   }
 
-  :scope:has(.taar-play:not([data-started])) .taar-time {
+  :scope:has(.taar-play:not([data-started])) .taar-bar .taar-time {
     opacity: 0;
     transition: none;
   }
@@ -679,6 +722,10 @@
       --taar-gutter: calc(var(--media-spacing) * 1);
     }
 
+    .taar-title {
+      display: none;
+    }
+
     .taar-time-current {
       display: none;
     }
@@ -707,7 +754,8 @@
       background-image: linear-gradient(to bottom, transparent 36%, rgb(0 0 0 / 0.72) 36% 74%, transparent 74%);
     }
 
-    .taar-time {
+    .taar-time,
+    .taar-title {
       -webkit-text-stroke: 3px #000;
     }
   }
@@ -738,7 +786,8 @@
       box-shadow: none;
     }
 
-    .taar-time {
+    .taar-time,
+    .taar-title {
       color: CanvasText;
       -webkit-text-stroke: 3px Canvas;
     }

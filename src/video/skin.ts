@@ -21,6 +21,7 @@ import '@videojs/html/ui/controls-group';
 import '@videojs/html/ui/buffering-indicator';
 import '@videojs/html/ui/controls-content';
 import '@videojs/html/ui/tooltip-group';
+import '@videojs/html/ui/title';
 import '@videojs/html/ui/airplay-button';
 import '@videojs/html/ui/tooltip';
 import '@videojs/html/ui/tooltip-label';

@@ -42,6 +42,20 @@ window.addEventListener('resize', drawWordmark);
 
 const stage = document.getElementById('stage')!;
 
+// An offline build (`VITE_TAAR_OFFLINE=1`) plays only the bundled clips, for hosts that cannot reach Mux.
+if (import.meta.env.VITE_TAAR_OFFLINE) {
+  const footage = document.querySelector('.tool[aria-label="Footage"]');
+  for (const chip of footage?.querySelectorAll<HTMLButtonElement>('.chip') ?? []) {
+    if (chip.dataset.clip === 'stars') {
+      chip.dataset.clip = 'dev';
+      chip.textContent = 'Test clip';
+    } else if (chip.dataset.clip === 'aurora') chip.remove();
+  }
+  document.querySelector('.tool-link')?.remove();
+  const credit = document.querySelector('.credit');
+  if (credit) credit.textContent = 'Offline preview: bundled clips only. The public build streams NASA footage from Mux, with storyboard thumbnails and generated captions.';
+}
+
 function mount(clip?: string): void {
   // The i18n provider follows the page's `lang` and loads Video.js's built-in translations for it.
   const i18n = document.createElement('media-i18n');

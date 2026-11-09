@@ -1,1 +1,1 @@
-See AGENTS.md. This skin is Verbatim: the caption sentence is the control bar. Keep every control keyboard operable and the transcript row readable over bright and dark video.
+See AGENTS.md. This skin is Taar: one unbroken line drawn through stock Video.js controls by `<taar-line>`. Keep every control keyboard operable and the line readable over bright and dark video; follow `design/spec.md`.

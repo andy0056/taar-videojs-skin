@@ -14,7 +14,7 @@ Three poses share one geometry:
 
 | Pose | When | Line | Glyphs |
 | --- | --- | --- | --- |
-| Poster | before first play | horizon through the middle of the frame, 3 px | only the play flag, large |
+| Poster | before first play | horizon through the middle of the frame, 3 px | only the play flag, large; title and running time stand on the line at either end |
 | Active | controls visible | 22 px above the bottom edge, 2 px | all raised |
 | Idle | playing, controls hidden | on the bottom edge, 2 px, 55 % ink | none; played part in the accent |
 
@@ -52,4 +52,4 @@ System UI stack, 620 weight, tabular numerals, 12.4 px at the default scale, wit
 
 ## Not included
 
-No title overlay, no seek-by-10 buttons, no centre play button after playback starts.
+No title during playback, no seek-by-10 buttons, no centre play button after playback starts.
