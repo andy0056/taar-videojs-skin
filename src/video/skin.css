@@ -620,11 +620,13 @@
     font-weight: 520;
     color: #fff;
     background: var(--taar-surface);
-    /* The panel's frame is the line, come up off the bar. Its corner is concentric with the items inside it:
-       item radius, plus the content's inset, plus the frame. */
-    border: var(--taar-stroke) solid var(--taar-ink);
-    border-radius: calc(var(--media-menu-item-radius) + var(--media-spacing) * 2 + var(--taar-stroke));
-    box-shadow: 0 0 0 calc(var(--taar-stroke) * 0.875) var(--taar-casing);
+    /* The panel's frame is the line, come up off the bar. It is drawn outside the box (an outline, with the casing as
+       a shadow beyond it), because Video.js sizes the panel to its content and a border would take that room back
+       from the rows. The corner is concentric with the items: item radius plus the content's inset. */
+    border: 0;
+    border-radius: calc(var(--media-menu-item-radius) + var(--media-spacing) * 2);
+    outline: var(--taar-stroke) solid var(--taar-ink);
+    box-shadow: 0 0 0 calc(var(--taar-stroke) * 1.875) var(--taar-casing);
   }
 
   .taar-menu :is(.media-menu-item, .media-menu-radio-item, .media-menu-back-item) {
@@ -635,10 +637,12 @@
   }
 
   .taar-menu :is(.media-menu-item, .media-menu-radio-item, .media-menu-back-item)[data-highlighted] {
+    color: #fff;
     background: rgb(255 255 255 / 0.14);
   }
 
   .taar-menu :is(.media-menu-item, .media-menu-radio-item, .media-menu-back-item):focus-visible {
+    color: #fff;
     background: rgb(255 255 255 / 0.14);
     box-shadow: inset 0 0 0 var(--taar-stroke) var(--taar-ink);
   }
@@ -817,6 +821,23 @@
     .taar-time,
     .taar-title {
       -webkit-text-stroke: calc(var(--media-spacing) * 0.75) #000;
+    }
+
+    /* The frame keeps the line's weight (the base skin would thin it to a hairline here). */
+    .taar-menu {
+      outline: var(--taar-stroke) solid var(--taar-ink);
+    }
+
+    /* The row you are on, as a solid plate: a translucent tint is exactly what these settings ask us to drop. */
+    .taar-menu :is(.media-menu-item, .media-menu-radio-item, .media-menu-back-item):is([data-highlighted], :focus-visible) {
+      color: #000;
+      background: #fff;
+      box-shadow: none;
+    }
+
+    .taar-menu :is([data-highlighted], :focus-visible) :is(.media-menu-hint-label, .media-menu-tier, .media-menu-badge) {
+      color: inherit;
+      opacity: 1;
     }
   }
 
