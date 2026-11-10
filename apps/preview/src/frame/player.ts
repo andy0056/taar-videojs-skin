@@ -12,6 +12,9 @@ import skinTemplate from '@/video/skin.html?raw';
  *   aurora  dark, narrated night footage
  *   dev     a bundled clip (dark, mid-tone and warm scenes), for working offline
  *   card    a bundled test card: paper white, checkerboard, colour bars, static and black
+ *
+ * The bundled clips carry their own storyboard, in the same form Mux serves one: a sprite sheet and a cue file that
+ * points each second at its tile.
  */
 interface MuxClip {
   playbackId: string;
@@ -34,12 +37,27 @@ const MUX: Record<string, MuxClip> = {
   },
 };
 
-const LOCAL: Record<string, { src: string; captions: string; chapters: string; title: string }> = {
-  dev: { src: './dev-clip.mp4', captions: './dev-clip.vtt', chapters: './dev-clip-chapters.vtt', title: 'Taar test clip' },
+interface LocalClip {
+  src: string;
+  captions: string;
+  chapters: string;
+  storyboard: string;
+  title: string;
+}
+
+const LOCAL: Record<string, LocalClip> = {
+  dev: {
+    src: './dev-clip.mp4',
+    captions: './dev-clip.vtt',
+    chapters: './dev-clip-chapters.vtt',
+    storyboard: './dev-clip-storyboard.vtt',
+    title: 'Taar test clip',
+  },
   card: {
     src: './test-card.mp4',
     captions: './test-card.vtt',
     chapters: './test-card-chapters.vtt',
+    storyboard: './test-card-storyboard.vtt',
     title: 'Test card',
   },
 };
@@ -69,10 +87,17 @@ export function createPlayer(clip = currentClip()): HTMLElement {
     player.setAttribute('content-title', mux.title);
   } else {
     const local = LOCAL[clip] ?? LOCAL.dev!;
-    media = `<video src="${local.src}" playsinline crossorigin preload="metadata"><track kind="captions" label="English" srclang="en" src="${local.captions}"><track kind="chapters" label="English" srclang="en" src="${local.chapters}" default></video>`;
+    media = `<video src="${local.src}" playsinline crossorigin preload="metadata"><track kind="captions" label="English" srclang="en" src="${local.captions}"><track kind="chapters" label="English" srclang="en" src="${local.chapters}" default><track kind="metadata" label="thumbnails" src="${local.storyboard}"></video>`;
     player.setAttribute('content-title', local.title);
   }
 
   player.innerHTML = skinTemplate.replace(MEDIA_PLACEHOLDER, media);
+
+  // A plain <video> switches on only its first default chapters or metadata track, so the storyboard is switched on
+  // by hand. <mux-video> does the same for the tracks it manages.
+  for (const element of player.querySelectorAll<HTMLTrackElement>('video > track[label="thumbnails"]')) {
+    if (element.track.mode === 'disabled') element.track.mode = 'hidden';
+  }
+
   return player;
 }

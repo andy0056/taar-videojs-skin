@@ -183,6 +183,7 @@ export class TaarLineElement extends UIElement {
    */
   #scrub: { id: number; x: number; last: number; min: number; max: number; diverged: boolean } | null = null;
   #relayed = new WeakSet<Event>();
+  #liftReset = 0;
   #rate = 1;
 
   connectedCallback(): void {
@@ -235,6 +236,7 @@ export class TaarLineElement extends UIElement {
     this.#mutations?.disconnect();
     cancelAnimationFrame(this.#raf);
     this.#raf = 0;
+    clearTimeout(this.#liftReset);
   }
 
   update(changed: PropertyValues): void {
@@ -352,6 +354,7 @@ export class TaarLineElement extends UIElement {
     const rect = this.#seek.el!.getBoundingClientRect();
     this.#scrub = { id: event.pointerId, x: event.clientX, last: event.clientX, min: rect.left, max: rect.right, diverged: false };
     this.#setRate(1);
+    this.#setLift(0);
   };
 
   #scrubMove = (event: PointerEvent): void => {
@@ -363,6 +366,7 @@ export class TaarLineElement extends UIElement {
     const reach = away / this.#unit;
     const rate = reach < 36 ? 1 : reach < 84 ? 0.5 : reach < 140 ? 0.25 : 0.125;
     this.#setRate(rate);
+    this.#liftAbove(event, lineY);
     scrub.x = Math.min(scrub.max, Math.max(scrub.min, scrub.x + (event.clientX - scrub.last) * rate));
     scrub.last = event.clientX;
     if (!scrub.diverged && Math.abs(scrub.x - event.clientX) < 0.5) return;
@@ -376,6 +380,7 @@ export class TaarLineElement extends UIElement {
     if (!scrub || event.pointerId !== scrub.id || this.#relayed.has(event)) return;
     this.#scrub = null;
     this.#setRate(1);
+    this.#settleLift();
     if (!scrub.diverged) return;
     event.stopPropagation();
     this.#relay(event, 'pointerup', scrub.x);
@@ -385,6 +390,7 @@ export class TaarLineElement extends UIElement {
     if (this.#scrub && event.pointerId === this.#scrub.id) {
       this.#scrub = null;
       this.#setRate(1);
+      this.#settleLift();
     }
   };
 
@@ -419,6 +425,37 @@ export class TaarLineElement extends UIElement {
     if (!seek) return;
     if (rate === 1) delete seek.dataset.taarRate;
     else seek.dataset.taarRate = String(Math.round(1 / rate));
+  }
+
+  /**
+   * Pulling the string upward puts the pointer where the preview normally sits, so the preview rides just above
+   * whatever is doing the pulling: a little clear of a cursor, further clear of a fingertip.
+   */
+  #liftAbove(event: PointerEvent, lineY: number): void {
+    const seek = this.#seek.el;
+    const container = this.#container;
+    if (!seek || !container) return;
+    const unit = this.#unit;
+    const preview = seek.querySelector<HTMLElement>('.taar-seek-preview');
+    // Where the preview's lower edge rests, measured up from the line (see `.taar-seek-preview` in the stylesheet).
+    const rest = seek.getBoundingClientRect().height * BASELINE - 2 * unit;
+    const clearance = (event.pointerType === 'mouse' ? 14 : 40) * unit;
+    const room = lineY - container.getBoundingClientRect().top - rest - (preview?.offsetHeight ?? 0) - 6 * unit;
+    this.#setLift(Math.max(0, Math.min(lineY - event.clientY + clearance - rest, room)));
+  }
+
+  #setLift(lift: number): void {
+    clearTimeout(this.#liftReset);
+    const seek = this.#seek.el;
+    if (!seek) return;
+    if (lift > 0.5) seek.style.setProperty('--taar-lift', `${lift.toFixed(1)}px`);
+    else seek.style.removeProperty('--taar-lift');
+  }
+
+  /** After a release the preview usually fades where it is; it drops back only once that fade is over. */
+  #settleLift(): void {
+    clearTimeout(this.#liftReset);
+    this.#liftReset = window.setTimeout(() => this.#setLift(0), 240);
   }
 
   #trackPointer(event: PointerEvent): void {

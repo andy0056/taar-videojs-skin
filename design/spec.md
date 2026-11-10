@@ -41,12 +41,14 @@ System UI stack, 620 weight, tabular numerals, 12.4 px at the default scale, wit
 - The seek stretch is the line itself. Played part: accent, 4 px. Buffered: 5.5 px ink at 30 %. Bead: 5 px radius, 6.5 on hover, 7.5 while held.
 - Chapter starts: 4.5 px ticks below the line. Pointer position: an 8 px tick above it.
 - Held: the string bends toward the pointer, up to 20 px. Rate steps at 36, 84 and 140 px from the line: ½, ¼, ⅛.
+- Pulled upward: the preview rides 14 px above a cursor, 40 px above a fingertip, and stops at the top of the frame. It settles back 240 ms after release.
 - Released: damped wave, first mode about 7.5 Hz, still within roughly 300 ms.
 
 ## Motion
 
 - Springs throughout; interruptible. Layout 150/24, rise 520/34, hide 700/52, morph 620/44 (stiffness/damping).
 - Stand-up ripple: up to 70 ms outward from the play button. Lie-down: no stagger.
+- Measured at 60 fps (mean of five runs): controls turn visible 8 ms after the pointer moves. Standing up, the play button is 90% up at about 125 ms and the far end of the bar at about 205 ms, all settled by about 225 ms. Lying down, every control is 90% flat at about 140 ms and settled by about 220 ms.
 - Poster to active: about 400 ms, once per source. Bead and labels wait 300 ms for the line to land.
 - Reduced motion: every spring snaps, no ring, no loading ripple.
 

@@ -330,6 +330,15 @@
     transition: opacity var(--media-duration-slower) ease-out var(--taar-settle);
   }
 
+  /* A little air on the button side, so a focus ring next door never touches the digits. */
+  .taar-time-current {
+    margin-inline-start: var(--media-spacing);
+  }
+
+  .taar-time-duration {
+    margin-inline-end: var(--media-spacing);
+  }
+
   :scope:has(.taar-play:not([data-started])) .taar-bar .taar-time {
     opacity: 0;
     transition: none;
@@ -389,16 +398,24 @@
     pointer-events: none;
     opacity: 0;
     scale: var(--media-hidden-preview-scale);
+    /* While the string is pulled upward the preview rides above the pointer; `<taar-line>` sets the distance. */
+    translate: 0 calc(var(--taar-lift, 0px) * -1);
     transform-origin: bottom;
     transition:
       opacity var(--media-duration-fast) ease-out,
-      scale var(--media-duration-fast) ease-out;
+      scale var(--media-duration-fast) ease-out,
+      translate var(--media-duration) ease-out;
   }
 
   .taar-seek:is([data-pointing], [data-dragging]) .taar-seek-preview {
     opacity: 1;
     scale: 1;
     transition-duration: var(--media-duration);
+  }
+
+  /* Held, it follows the pointer directly. */
+  .taar-seek[data-dragging] .taar-seek-preview {
+    transition-property: opacity, scale;
   }
 
   .taar-seek[data-disabled] .taar-seek-preview {

@@ -13,9 +13,9 @@ Built for the [Video.js Skins Design Challenge](https://contra.com/community/top
 - **Three poses, one line.** Before playback the line is a horizon through the middle of the frame with a single play flag on it. On play it comes down to the foot of the frame and every control stands up out of it. While you watch it rests on the bottom edge and shows progress.
 - **Glyphs you could draw without lifting a pen.** Play is a flag, pause is two pulses, the speaker's sound is a wave in the line itself, as tall as the volume. Closed shapes attach to the line at one corner; the pen may go back over a stroke but never lifts.
 - **State is a shape.** Captions and picture-in-picture fill in when they are on, mute strikes through the horn and flattens the wave, fullscreen turns its arrow round. Nothing depends on colour alone.
-- **A seek bar that is a string.** Drag the bead to scrub. Pull the pointer away from the line and the string bends toward it while the scrub slows to ½, ¼, then ⅛ speed, with the rate shown beside the time. Let go and the string rings for about a quarter of a second.
+- **A seek bar that is a string.** Drag the bead to scrub. Pull the pointer away from the line and the string bends toward it while the scrub slows to ½, ¼, then ⅛ speed, with the rate shown beside the time. The preview rides just above the cursor or fingertip while you pull, so the frame you are scrubbing to is never covered. Let go and the string rings for about a quarter of a second.
 - **A volume mast.** Point at the speaker and its front edge grows upward into a slider with its own bead.
-- **Frets.** Chapter starts are small ticks on the string; the hover preview shows the chapter, the time and, on Mux streams, a storyboard thumbnail.
+- **Frets.** Chapter starts are small ticks on the string; the hover preview shows the chapter, the time and a storyboard thumbnail when the media has one (Mux streams do, and so do the bundled clips).
 
 ## Under the line
 
