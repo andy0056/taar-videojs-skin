@@ -23,12 +23,15 @@ const arc = (cx: number, cy: number, r: number, a0: number, a1: number, n: numbe
   return out;
 };
 
-/** A flag on the line: the triangle stands on its lower corner and the line runs on beneath it. */
+/**
+ * A flag on the line: the triangle stands on its lower corner and the line runs on beneath it. It sits 1.5 units right
+ * of the slot's centre, because a triangle's weight is on its upright side and it reads as off-centre otherwise.
+ */
 const play = (): Pt[] => [
-  [14, 0],
-  [14, -18],
-  [30, -9],
-  [14, 0],
+  [15.5, 0],
+  [15.5, -18],
+  [31.5, -9],
+  [15.5, 0],
 ];
 
 /** Two pulses. */

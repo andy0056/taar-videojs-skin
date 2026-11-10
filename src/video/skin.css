@@ -614,14 +614,16 @@
     --media-popover-side-offset: calc(var(--media-spacing) * 2);
     --media-menu-item-radius: calc(var(--media-spacing) * 1.5);
     min-width: calc(var(--media-spacing) * 46);
-    padding: calc(var(--media-spacing) * 1.25);
+    /* The inset belongs to the menu's content (two spacing units); padding here would only pile up under the last row. */
+    padding: 0;
     font-size: calc(var(--media-spacing) * 3.25);
     font-weight: 520;
     color: #fff;
     background: var(--taar-surface);
-    /* The panel's frame is the line, come up off the bar. */
+    /* The panel's frame is the line, come up off the bar. Its corner is concentric with the items inside it:
+       item radius, plus the content's inset, plus the frame. */
     border: var(--taar-stroke) solid var(--taar-ink);
-    border-radius: calc(var(--media-spacing) * 3);
+    border-radius: calc(var(--media-menu-item-radius) + var(--media-spacing) * 2 + var(--taar-stroke));
     box-shadow: 0 0 0 calc(var(--taar-stroke) * 0.875) var(--taar-casing);
   }
 
