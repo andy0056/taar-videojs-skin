@@ -32,7 +32,7 @@ Fine scrubbing does not replace the slider's own seeking. While the string is he
 - **Preferences.** `prefers-reduced-motion` makes the line change pose without travelling, stops the string ringing and the loading ripple. `prefers-contrast: more` and `prefers-reduced-transparency` swap the shade for a solid band. `forced-colors` uses `CanvasText`, `Canvas` and `Highlight`.
 - **Focus.** A white ring with a dark halo on every stop, slider beads included. Focus brings hidden controls straight back.
 - **Touch.** 44 px targets (40 px on the narrowest players), no hover dependence. Phones get mute and use their own volume keys.
-- **Small players.** Container queries drop picture-in-picture, then duration, then the clock, so the string keeps its room down to 320 px wide.
+- **Small players.** Below 640 px picture-in-picture steps off. Below 496 px the two times stand on the ends of the string and the string takes their place; below 368 px only the elapsed time stays. The clock is in view at every width down to 320 px, and the seek thumbnail shrinks with the player.
 - **Own type.** A system UI stack with tabular numerals; the host page's font is not inherited and nothing is downloaded.
 - **Public knobs.** `--media-accent-color` colours played time (copper by default). `--media-accent-text-color`, `--media-border-radius`, `--media-font-family` and `--media-scale-unit` work as on the packaged skins. Taar adds `--taar-ink` and `--taar-casing`.
 

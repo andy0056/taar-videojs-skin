@@ -18,6 +18,14 @@ Three poses share one geometry:
 | Active | controls visible | 22 px above the bottom edge, 2 px | all raised |
 | Idle | playing, controls hidden | on the bottom edge, 2 px, 55 % ink | none; played part in the accent |
 
+Widths (container queries on the player, not the page):
+
+| Player width | Change |
+| --- | --- |
+| under 640 px | picture-in-picture leaves the bar |
+| under 496 px | 40 px slots; the two times stand on the ends of the string, which takes their place; they step off while the string is held; smaller seek thumbnail |
+| under 368 px | only the elapsed time stays on the string; the poster title goes |
+
 ## Glyph grammar
 
 - 44-unit slot, 18-unit cap height, baseline 34/44 down the slot.

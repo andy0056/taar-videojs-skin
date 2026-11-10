@@ -350,6 +350,14 @@
 
   /* ─────────────────────────────────────────────── the string (time slider) */
 
+  .taar-string {
+    position: relative;
+    display: flex;
+    flex: 1;
+    align-items: stretch;
+    min-width: 0;
+  }
+
   .taar-seek {
     position: relative;
     flex: 1;
@@ -731,14 +739,39 @@
       --taar-gutter: calc(var(--media-spacing) * 2);
     }
 
-    .taar-time-duration {
-      display: none;
-    }
-
     .taar-seek {
+      /* Above the times, so the preview covers them and not the other way round. */
+      z-index: 1;
       margin-inline: calc(var(--media-spacing) * 2.5);
     }
 
+    /* A smaller frame for a smaller player. */
+    .taar-seek-preview,
+    .taar-seek-thumbnail {
+      max-width: calc(var(--media-spacing) * 34);
+    }
+
+    /* No room beside the string, so the times stand on its two ends and the string takes their place. */
+    .taar-string .taar-time {
+      position: absolute;
+      bottom: 0;
+      margin: 0 0 calc(var(--taar-slot) * 0.33 + var(--media-spacing) * 0.75);
+    }
+
+    .taar-time-current {
+      inset-inline-start: calc(var(--media-spacing) * 2);
+    }
+
+    .taar-time-duration {
+      inset-inline-end: calc(var(--media-spacing) * 2);
+    }
+
+    /* A held string bends up through them, and the preview is showing the time by then. They step back on once it
+       has stopped ringing. */
+    .taar-string:has(.taar-seek[data-dragging]) .taar-time {
+      opacity: 0;
+      transition: opacity var(--media-duration-fast) ease-out;
+    }
   }
 
   @container media-root (width < 23rem) {
@@ -750,7 +783,8 @@
       display: none;
     }
 
-    .taar-time-current {
+    /* The elapsed time alone: two times would meet in the middle of a string this short. */
+    .taar-time-duration {
       display: none;
     }
   }
